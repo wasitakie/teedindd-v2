@@ -1,16 +1,12 @@
+import Banner from "@/components/Banner";
 import React from "react";
 
 export default function page() {
   return (
     <>
-      <button className="btn btn-neutral">Neutral</button>
-      <button className="btn btn-primary">Primary</button>
-      <button className="btn btn-secondary">Secondary</button>
-      <button className="btn btn-accent">Accent</button>
-      <button className="btn btn-info">Info</button>
-      <button className="btn btn-success">Success</button>
-      <button className="btn btn-warning">Warning</button>
-      <button className="btn btn-error">Error</button>
+      <Banner />
+      กำหนดขนาดของรูปภาพ ณ จุดพักต่างๆ
+      ใช้โดยเบราว์เซอร์เพื่อเลือกขนาดที่เหมาะสมที่สุดจากไฟล์ที่สร้างsrcsetขึ้น
     </>
   );
 }

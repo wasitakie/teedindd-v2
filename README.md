@@ -34,3 +34,11 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+ส่วนประกอบ แนะนำโทนสีที่ใช้
+พื้นหลังหน้าเว็บ #FFFFFF (White)
+Header/Footer #153F59 (Navy) หรือ #F4F4F4 (Light Gray)
+ปุ่ม "ค้นหา/ติดต่อ" (CTA) #197148 (Forest Green)
+ปุ่ม "รายละเอียดเพิ่มเติม" #F39C12 (Warm Orange) หรือ #153F59 (Navy)
+Card (แสดงรายการที่ดิน) #FFFFFF (White) มี Shadow เล็กน้อย
+ข้อความราคา/โปรโมชั่น #F39C12 (Warm Orange) หรือ #197148 (Forest Green)
