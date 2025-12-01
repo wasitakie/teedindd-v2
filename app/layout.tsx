@@ -3,6 +3,7 @@ import { Prompt } from "next/font/google";
 import "./globals.css";
 import Navber from "@/components/Navber";
 import Footer from "@/components/Footer";
+import AuthProvider from "@/libs/auth/provider";
 
 const prompt = Prompt({
   variable: "--font-geist-sans",
@@ -23,9 +24,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${prompt.className}`}>
-        <Navber />
-        {children}
-        <Footer />
+        <AuthProvider>
+          <Navber />
+          {children}
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
