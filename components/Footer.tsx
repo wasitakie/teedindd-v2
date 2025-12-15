@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <div>
+    <>
       <footer className="footer sm:footer-horizontal bg-base-300 text-base-content p-10">
         <nav>
           <h6 className="footer-title">Services</h6>
@@ -57,6 +57,6 @@ export default function Footer() {
           </div>
         </nav>
       </footer>
-    </div>
+    </>
   );
 }

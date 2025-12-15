@@ -1,18 +1,17 @@
-import { getSessionData } from "@/libs/auth.s";
-import { cookies } from "next/headers";
+"use client";
+
+import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import React from "react";
 
-export default async function Page() {
-  const user = await getSessionData();
+export default function Page() {
+  const { data: session } = useSession();
 
-  if (!user) {
-    redirect("/signin/user");
-  }
-  console.log("Session ID from cookies:", user?.id);
+  if (!session) return <div className="">not auth</div>;
+
   return (
     <div>
-      <div>{user?.email}</div>
+      <div className="">google {session?.user?.email}</div>
     </div>
   );
 }

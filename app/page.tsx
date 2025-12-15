@@ -9,7 +9,7 @@ interface User {
   password: string;
 }
 
-export default function Page() {
+export default function Home() {
   const [users, setUsers] = useState<User[]>([]);
 
   const fetchUsers = async () => {
