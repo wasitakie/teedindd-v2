@@ -8,11 +8,14 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json();
+  const formData = await req.formData();
+  const name = formData.get("name") as string;
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
   const hashPassword = await bcrypt.hash(password, 10);
   const [res] = await connect.execute(
-    "INSERT INTO users (email,password) VALUES (?,?)",
-    [email, hashPassword]
+    "INSERT INTO users (name,email,password) VALUES (?,?,?)",
+    [name, email, hashPassword]
   );
   return NextResponse.json(res);
 }

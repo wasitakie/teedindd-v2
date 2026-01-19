@@ -3,3 +3,8 @@ export interface MenuItem {
   href?: string;
   children?: MenuItem[];
 }
+
+export interface Category {
+  id: string;
+  label?: string;
+}

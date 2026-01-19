@@ -1,17 +1,17 @@
-import { MenuItem } from "@/libs/types/menu";
+import { Category, MenuItem } from "@/libs/types/menu";
 
 export const menuData: MenuItem[] = [
   { name: "หน้าหลัก", href: "/" },
   {
     name: "ขาย",
     children: [
-      { name: "ขาย1", href: "/sell1" },
-      { name: "ขาย2", href: "/sell2" },
+      { name: "ขายที่ดิน", href: "/ขายที่ดิน" },
+      { name: "ขายคอนโด", href: "/ขายคอนโด" },
     ],
   },
   {
     name: "ให้เช่า",
-    children: [{ name: "ให้เช่า1", href: "/bau2" }],
+    children: [{ name: "ให้เช่าที่ดิน", href: "/ให้เช่าที่ดิน" }],
   },
   { name: "ลงโฆษณา", href: "/" },
   {
@@ -21,4 +21,13 @@ export const menuData: MenuItem[] = [
       { name: "ลงประกาศฟรีให้เช่า", href: "/" },
     ],
   },
+];
+
+export const CATEGORIES: Category[] = [
+  { id: "land", label: "ที่ดิน" },
+  { id: "condo", label: "คอนโด" },
+  { id: "house", label: "บ้านเดี่ยว" },
+  { id: "townhome", label: "ทาวน์โฮม/โรงแรม" },
+  { id: "commercial", label: "อาคารพาณิชย์/ สำนักงาน" },
+  { id: "warehouse", label: "โกดัง/โรงงาน" },
 ];

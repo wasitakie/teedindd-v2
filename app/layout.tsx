@@ -4,6 +4,7 @@ import "./globals.css";
 import Navber from "@/components/Navber";
 import Footer from "@/components/Footer";
 import AuthProvider from "@/libs/auth/provider";
+import { Toaster } from "react-hot-toast";
 
 const prompt = Prompt({
   variable: "--font-geist-sans",
@@ -26,6 +27,7 @@ export default function RootLayout({
       <body className={`${prompt.className}`}>
         <AuthProvider>
           <Navber />
+          <Toaster />
           {children}
           <Footer />
         </AuthProvider>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 export default function Footer() {
@@ -14,9 +15,12 @@ export default function Footer() {
         <nav>
           <h6 className="footer-title">Company</h6>
           <a className="link link-hover">About us</a>
-          <a className="link link-hover">Contact</a>
-          <a className="link link-hover">Jobs</a>
-          <a className="link link-hover">Press kit</a>
+          <Link href={"/contact"} className="link link-hover">
+            ติดต่อเรา
+          </Link>
+          <Link href={"/privacy-policy"} className="link link-hover">
+            นโยบายความเป็นส่วนตัว
+          </Link>
         </nav>
         <nav>
           <h6 className="footer-title">Social</h6>

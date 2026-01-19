@@ -5,7 +5,7 @@ import Credentials from "next-auth/providers/credentials";
 import FacebookProvider from "next-auth/providers/facebook";
 import GoogleProvider from "next-auth/providers/google";
 
-const authOptions: AuthOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -96,15 +96,15 @@ const authOptions: AuthOptions = {
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = user.id.toString();
       }
       return token;
     },
 
     // 💡 ต้องเพิ่ม Session Callback เพื่อให้ ID ถูกส่งไปยัง Client
-    async session({ session, token }) {
-      if (token && session.user) {
-        (session.user as any).id = token.id as string;
+    async session({ session, token }: any) {
+      if (session.user && token.id) {
+        session.user.id = token.id;
       }
       return session;
     },

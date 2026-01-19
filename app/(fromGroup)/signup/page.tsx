@@ -13,6 +13,13 @@ export default function Page() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const handleSignIn = () => {
+    signIn("google", {
+      redirect: true,
+      callbackUrl: "/myPosts",
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -21,48 +28,25 @@ export default function Page() {
     setMessage("Loading...");
     setError("");
 
-    signIn("credentials", {
-      email: formData.get("email"),
-      password: formData.get("password"),
-      redirect: true,
-      callbackUrl: "/users",
-    });
+    try {
+      const res = await fetch("/api/users/", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await res.json();
+      if (res.ok) {
+        setMessage("Signin successful!");
+        router.push("/myPosts");
+        console.log("session", result);
+      } else {
+        setError(result.message || "Signin failed");
+        setMessage("");
+      }
+    } catch (err) {
+      console.error("Error during signin:", err);
+      setError("An error occurred. Please try again.");
+    }
   };
-
-  const handleSignIn = () => {
-    signIn("google", {
-      redirect: true,
-      callbackUrl: "/users",
-    });
-  };
-
-  // const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   const formData = new FormData(e.currentTarget);
-
-  //   setMessage("Loading...");
-  //   setError("");
-
-  //   try {
-  //     const res = await fetch("/api/users/signin/", {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-  //     const result = await res.json();
-  //     if (res.ok) {
-  //       setMessage("Signin successful!");
-  //       router.push("/users");
-  //       console.log("session", result);
-  //     } else {
-  //       setError(result.message || "Signin failed");
-  //       setMessage("");
-  //     }
-  //   } catch (err) {
-  //     console.error("Error during signin:", err);
-  //     setError("An error occurred. Please try again.");
-  //   }
-  // };
 
   return (
     <>
@@ -92,7 +76,12 @@ export default function Page() {
                 สมัครสมาชิก with LINE
               </span>
             </button> */}
-            <button className="flex items-center justify-center w-full py-4 mb-1.5 space-x-3 text-sm text-center bg-blue-700 text-white transition-colors duration-200 transform border rounded-2xl hover:bg-blue-400 cursor-pointer">
+            <button
+              className="flex items-center justify-center w-full py-4 mb-1.5 space-x-3 text-sm text-center bg-blue-700 text-white transition-colors duration-200 transform border rounded-2xl hover:bg-blue-400 cursor-pointer"
+              onClick={() => {
+                signIn("facebook");
+              }}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="20"
@@ -144,7 +133,7 @@ export default function Page() {
             </fieldset>
             <fieldset className="fieldset">
               <label className="label">
-                อีเมล์/เบอร์โทร{" "}
+                อีเมล์{" "}
                 <span className="text-red-500 font-semibold mx-0.5">*</span>
               </label>
               <input
@@ -202,13 +191,39 @@ export default function Page() {
                 ยืนยันรหัสผ่าน{" "}
                 <span className="text-red-500 font-semibold mx-0.5">*</span>
               </span>
-              <input
-                type="password"
-                className="input w-full validator"
-                name="confirmPassword"
-                placeholder="Password"
-                required
-              />
+              <div className=" ">
+                <div className="relative flex mt-2">
+                  <input
+                    type={`${showPassword ? "text" : "password"}`}
+                    className="input w-full validator"
+                    name="confirmPassword"
+                    placeholder="Password"
+                    required
+                  />
+                  <div className="absolute right-4 mt-2 flex gap-10 text-black">
+                    {showPassword ? (
+                      <>
+                        <BsEyeFill
+                          className="w-5 h-5 "
+                          onClick={() => {
+                            setShowPassword(!showPassword);
+                          }}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <BsEyeSlashFill
+                          className="w-5 h-5 "
+                          onClick={() => {
+                            setShowPassword(!showPassword);
+                          }}
+                        />
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <span className="validator-hint hidden">Required</span>
             </label>
 

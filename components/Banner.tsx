@@ -6,7 +6,7 @@ export default function Banner() {
     <>
       <div className="block relative h-[500px] bg-bottom w-full overflow-hidden">
         <Image
-          src="/images/banner1.jpg"
+          src="/assets/banner1.jpg"
           alt="banner"
           fill={true}
           className=" object-cover w-full h-full"

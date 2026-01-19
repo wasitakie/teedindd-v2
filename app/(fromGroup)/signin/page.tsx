@@ -4,7 +4,8 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
-import React, { useCallback, useState } from "react";
+import React, { FormEvent, useCallback, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function Page() {
   const router = useRouter();
@@ -22,15 +23,16 @@ export default function Page() {
     signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),
-      redirect: true,
-      callbackUrl: "/users",
+      redirect: false,
     });
+    toast.success("ยินดีต้อนรับเข้าสู่ระบบ");
+    router.push("/myPosts");
   };
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     signIn("google", {
       redirect: true,
-      callbackUrl: "/users",
+      callbackUrl: "/myPosts",
     });
   };
 
@@ -132,7 +134,7 @@ export default function Page() {
             </div>
 
             <fieldset className="fieldset">
-              <label className="label">อีเมล์/เบอร์โทร</label>
+              <label className="label">อีเมล์</label>
               <input
                 type="email"
                 className="input validator"

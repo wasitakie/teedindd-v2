@@ -4,20 +4,24 @@ import { menuData } from "@/libs/data/menuData";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Dropdown from "./Dropdown";
-import { tree } from "next/dist/build/templates/app-page";
+import { Router } from "next/router";
+import toast from "react-hot-toast";
+import { GoSignOut } from "react-icons/go";
 
 export default function Navber() {
+  const router = useRouter();
   const [openSubMenuId, setOpenSubMenuId] = useState<number | null>(null);
   const { data: session } = useSession();
 
-  const handleSignOut = () => {
-    signOut({
-      redirect: true,
-      callbackUrl: "/",
+  const handleSignOut = async () => {
+    await signOut({
+      redirect: false,
     });
+    router.push("/");
+    toast.success("คุณออกจากระบบแล้ว");
   };
   return (
     <>
@@ -32,20 +36,48 @@ export default function Navber() {
             ))}
           </ul>
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-4 ">
+          <Link href={"/post-free"}>
+            <button className="btn bg-red-500 btn-sm text-white">
+              ลงประกาศฟรี
+            </button>
+          </Link>
           {session ? (
-            <div className="">
-              <div className="avatar w-10 rounded-full">
-                <img
-                  alt={`${session.user?.name}` || ""}
-                  src={`${session.user?.image}` || ""}
-                />
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-ghost btn-circle avatar"
+              >
+                <div className="w-10 rounded-full">
+                  <img
+                    alt="Tailwind CSS Navbar component"
+                    src={session.user?.image || ""}
+                    width={50}
+                    height={50}
+                  />
+                </div>
               </div>
-              {session.user?.name}
-              {session?.user?.email}
-              <button className="btn btn-error" onClick={handleSignOut}>
-                signout
-              </button>
+              <ul
+                tabIndex={-1}
+                className="menu menu-md dropdown-content bg-base-100 rounded-box z-1 mt-3 w-70 p-2 shadow"
+              >
+                <li>
+                  <Link href={"/users"} className="justify-between">
+                    โปรไฟล์
+                    <span className="badge">New</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href={"/myPosts"}>ประกาศของฉัน</Link>
+                </li>
+                <li>
+                  <Link href={"/"}>Settings</Link>
+                </li>
+                <li>
+                  <a onClick={handleSignOut}>ออกจากระบบ</a>
+                </li>
+              </ul>
             </div>
           ) : (
             <>
