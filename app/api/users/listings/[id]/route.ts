@@ -1,5 +1,5 @@
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import connect from "@/libs/config";
+import pool from "@/libs/config";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
@@ -7,13 +7,13 @@ export async function GET(req: NextRequest) {
   if (!session || !session.user?.id) {
     return NextResponse.json(
       { error: "กรุณาเข้าสู่ระบบก่อน" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
-  const [res] = await connect.execute(
+  const [res] = await pool.execute(
     "SELECT * FROM post WHERE users_id = ? ORDER BY id DESC",
-    [session.user.id]
+    [session.user.id],
   );
   return NextResponse.json(res);
 }

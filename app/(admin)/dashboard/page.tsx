@@ -1,7 +1,6 @@
 import { getSessionAdminData } from "@/libs/auth.s";
 import { redirect } from "next/navigation";
-
-import React from "react";
+import DashboardClient from "./DashboardClient";
 
 export default async function Page() {
   const admin = await getSessionAdminData();
@@ -10,5 +9,5 @@ export default async function Page() {
     redirect("/signin/admin");
   }
 
-  return <div>page dashboard{admin?.email}</div>;
+  return <DashboardClient />;
 }

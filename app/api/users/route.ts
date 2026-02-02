@@ -1,9 +1,9 @@
-import connect from "@/libs/config";
+import pool from "@/libs/config";
 import bcrypt from "bcrypt";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
-  const [res] = await connect.execute("SELECT * FROM users");
+  const [res] = await pool.execute("SELECT * FROM users");
   return NextResponse.json(res);
 }
 
@@ -13,9 +13,9 @@ export async function POST(req: NextRequest) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const hashPassword = await bcrypt.hash(password, 10);
-  const [res] = await connect.execute(
+  const [res] = await pool.execute(
     "INSERT INTO users (name,email,password) VALUES (?,?,?)",
-    [name, email, hashPassword]
+    [name, email, hashPassword],
   );
   return NextResponse.json(res);
 }

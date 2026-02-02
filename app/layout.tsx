@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Prompt } from "next/font/google";
 import "./globals.css";
+import "@fancyapps/ui/dist/fancybox/fancybox.css";
 import Navber from "@/components/Navber";
 import Footer from "@/components/Footer";
 import AuthProvider from "@/libs/auth/provider";
 import { Toaster } from "react-hot-toast";
+import VisitorTracker from "@/components/VisitorTracker";
 
 const prompt = Prompt({
   variable: "--font-geist-sans",
@@ -26,6 +28,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${prompt.className}`}>
         <AuthProvider>
+          <VisitorTracker />
           <Navber />
           <Toaster />
           {children}

@@ -1,4 +1,4 @@
-import connect from "@/libs/config";
+import pool from "@/libs/config";
 import { compare, hashSync } from "bcrypt";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -9,28 +9,59 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
-  const email = formData.get("email");
-  const password = formData.get("password");
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
+  // Validate input
+  if (!email || !password) {
+    return NextResponse.json(
+      { message: "Email and password are required" },
+      { status: 400 },
+    );
+  }
+
+  // Validate email format
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    return NextResponse.json(
+      { message: "Invalid email format" },
+      { status: 400 },
+    );
+  }
 
   try {
-    const [response]: any = await connect.execute(
+    const [response]: any = await pool.execute(
       "SELECT * FROM admin WHERE email = ?",
-      [email]
+      [email],
     );
-    const data = response[0];
 
-    const passwordMatch = await compare(password as string, data.password);
-
-    if (!passwordMatch) {
-      redirect("/signin/admin");
+    // ไม่บอกว่า email มีอยู่หรือไม่ (ป้องกัน user enumeration)
+    if (!response || response.length === 0) {
+      // ใช้เวลาเท่ากันเพื่อป้องกัน timing attack
+      await compare("dummy", "$2b$10$dummyhashfordummycomparison");
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 401 },
+      );
     }
 
-    // 4. *** จุดสำคัญ: ตรวจสอบ Role ***
+    const data = response[0];
+
+    // ตรวจสอบ password
+    const passwordMatch = await compare(password, data.password);
+
+    if (!passwordMatch) {
+      return NextResponse.json(
+        { message: "Invalid credentials" },
+        { status: 401 },
+      );
+    }
+
+    // ตรวจสอบ Role - ต้องเป็น admin เท่านั้น
     if (data.role !== "admin") {
-      // หากผู้ใช้ไม่มี role เป็น 'admin' ให้ปฏิเสธทันที
       return NextResponse.json(
         { message: "Access denied. Requires Admin privileges." },
-        { status: 403 }
+        { status: 403 },
       );
     }
     // กำหนด Options ที่ใช้ร่วมกันสำหรับ Cookie ทั้งหมด
@@ -49,14 +80,16 @@ export async function POST(request: NextRequest) {
     cookiesStore.set("sessionAdmin-id", sessionAdmin, cookieOptions);
     cookiesStore.set("session-role", sessionRole, cookieOptions);
 
-    console.log("password:", passwordMatch);
-
-    return NextResponse.json({ message: "Signin API called successfully" });
+    return NextResponse.json({
+      message: "Signin API called successfully",
+      success: true,
+    });
   } catch (err) {
-    console.error("Error in signin API:", err);
+    // Log error แต่ไม่ส่ง error details ไปยัง client
+    console.error("Error in admin signin API:", err);
     return NextResponse.json(
       { message: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

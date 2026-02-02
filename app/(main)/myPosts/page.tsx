@@ -1,5 +1,7 @@
 "use client";
 
+import { listing } from "@/libs/types/menu";
+import { formatCurrency } from "@/libs/utils";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -69,21 +71,20 @@ export default function MyPosts() {
         {posts.length === 0 ? (
           <div className="text-gray-500">คุณยังไม่มีประกาศในขณะนี้</div>
         ) : (
-          posts.map((post: any) => (
+          posts.map((post: listing) => (
             <Link
               key={post.id}
-              href={`/${post.post_number}`}
-              className="flex my-4 px-4 py-4 border rounded-2xl p"
+              href={`/detail/${post.slug}`}
+              target="_blank"
+              className="flex my-4 p-4 border rounded-2xl"
             >
-              <div className="w-[200px] h-full  rounded-2xl ">
+              <div className="w-[300px] h-full  rounded-2xl ">
                 {post.images && post.images.length > 0 ? (
                   <>
                     <img
                       src={`/users/${post.images.split(",")[0]}`}
                       alt="Post Image"
-                      className="rounded-l-2xl"
-                      width={200}
-                      height={200}
+                      className="rounded-2xl w-full h-full object-cover"
                     />
                   </>
                 ) : (
@@ -92,12 +93,21 @@ export default function MyPosts() {
               </div>
 
               <div className="mx-5">
+                <span className="inline-block px-2 py-1 leading-none bg-orange-200 text-orange-800 rounded-full font-semibold uppercase tracking-wide text-xs">
+                  {post.category == "sell" ? "ขาย" : "ให้เช่า"}
+                </span>
                 <h2 className="text-xl font-semibold">{post.title}</h2>
                 <p className="text-gray-600">{post.description}</p>
                 <p className="text-gray-600">
                   ประกาศเลขที่: {post.post_number}
                 </p>
-                <p className="text-gray-800">ราคา: {post.price} บาท</p>
+                <p className="text-gray-800">
+                  ราคา{post.category == "sell" ? "ขาย" : "ให้เช่า"}{" "}
+                  <span className="text-orange-500">
+                    {formatCurrency(post.price)} บาท{" "}
+                    {post.category == "rent" ? "/ เดือน" : ""}
+                  </span>
+                </p>
               </div>
             </Link>
           ))
