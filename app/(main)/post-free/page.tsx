@@ -5,7 +5,7 @@ import AddPostForm from "@/components/AddPostForm";
 import { useSession } from "next-auth/react";
 import React, { useState } from "react";
 
-export default function postFreePage() {
+export default function PostFreePage() {
   const { data: session } = useSession();
   if (!session) {
     return (

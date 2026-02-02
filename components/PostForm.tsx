@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { CATEGORIES } from "@/libs/data/menuData";
 import { Signin, Signup } from "@/components/Button";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function PostForm() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function PostForm() {
   useEffect(() => {
     const fetchProvinces = async () => {
       const res = await fetch(
-        "https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/province.json"
+        "https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/province.json",
       );
       const data = await res.json();
       setProvinces(data);
@@ -56,11 +57,11 @@ export default function PostForm() {
         return;
       }
       const res = await fetch(
-        "https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/district.json"
+        "https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/district.json",
       );
       const data = await res.json();
       const filtered = data.filter(
-        (item: any) => item.province_id === parseInt(selectedProvince)
+        (item: any) => item.province_id === parseInt(selectedProvince),
       );
       setAmphures(filtered);
     };
@@ -74,11 +75,11 @@ export default function PostForm() {
         return;
       }
       const res = await fetch(
-        "https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district.json"
+        "https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district.json",
       );
       const data = await res.json();
       const filtered = data.filter(
-        (item: any) => item.district_id === parseInt(selectedAmphure)
+        (item: any) => item.district_id === parseInt(selectedAmphure),
       );
       setTambons(filtered);
     };
@@ -88,7 +89,7 @@ export default function PostForm() {
   useEffect(() => {
     if (selectedTambon && tambons.length > 0) {
       const target = tambons.find(
-        (t: any) => t.id === parseInt(selectedTambon)
+        (t: any) => t.id === parseInt(selectedTambon),
       );
       if (target) setZipcode((target as any).zip_code);
     } else {
@@ -345,8 +346,10 @@ export default function PostForm() {
                     key={i}
                     className="w-full h-24 border rounded-lg overflow-hidden"
                   >
-                    <img
+                    <Image
                       src={src}
+                      width={100}
+                      height={100}
                       alt={`Preview ${i}`}
                       className="w-full h-full object-cover"
                     />
