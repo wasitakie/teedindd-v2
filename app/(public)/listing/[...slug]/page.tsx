@@ -9,7 +9,7 @@ import React from "react";
 export default async function SearchPage({
   params,
 }: {
-  params: { slug: string[] };
+  params: Promise<{ slug: string[] }>;
 }) {
   const { slug } = await params;
   const decodedSlugs = slug.map((s) => decodeURIComponent(s));

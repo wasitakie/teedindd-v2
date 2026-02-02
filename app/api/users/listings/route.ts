@@ -1,6 +1,6 @@
 import pool from "@/libs/config";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/libs/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { writeFile } from "fs/promises";
 

@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
 import connect from "./config";
-
 interface UserData {
   id: number;
   email: string;
@@ -20,7 +19,7 @@ export async function getSessionData(): Promise<UserData | null> {
   try {
     const [res]: any = await connect.execute(
       "SELECT * FROM users WHERE id = ?",
-      [sessionId]
+      [sessionId],
     );
     const data = res[0];
 
@@ -47,7 +46,7 @@ export async function getSessionAdminData(): Promise<UserData | null> {
   try {
     const [res]: any = await connect.execute(
       "SELECT * FROM admin WHERE id = ? AND role = ?",
-      [sessionId, sessionRole]
+      [sessionId, sessionRole],
     );
     const data = res[0];
 
