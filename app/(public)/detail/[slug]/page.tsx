@@ -18,7 +18,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 export default async function DetailListingPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
