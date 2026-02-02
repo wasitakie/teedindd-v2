@@ -3,9 +3,8 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdFilterList } from "react-icons/md";
-type Props = {};
 
-export default function Search({}: Props) {
+export default function Search() {
   const router = useRouter();
   const [province, setProvince] = useState("");
   const [categoryType, setCategoryType] = useState("sell");
