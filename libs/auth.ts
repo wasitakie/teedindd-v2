@@ -82,33 +82,40 @@ export const authOptions: NextAuthOptions = {
         (account?.provider === "google" || account?.provider === "facebook") &&
         user.email
       ) {
-        const [rows] = await pool.execute<DBUserRow[]>(
-          "SELECT id, role, status FROM users WHERE email = ? LIMIT 1",
-          [user.email],
-        );
-
-        if (rows.length > 0) {
-          const dbUser = rows[0];
-
-          if (dbUser.role === "admin") {
-            return "/signin?error=ADMIN_NOT_ALLOWED";
-          }
-          if (dbUser.status === 0) {
-            return "/signin?error=ACCOUNT_DISABLED";
-          }
-
-          await pool.execute(
-            "UPDATE users SET name = ?, image = ?, status = 1 WHERE id = ?",
-            [user.name, user.image, dbUser.id],
+        try {
+          const [rows] = await pool.execute<DBUserRow[]>(
+            "SELECT id, role, status FROM users WHERE email = ? LIMIT 1",
+            [user.email],
           );
 
-          user.id = dbUser.id.toString();
-        } else {
-          const [result] = await pool.execute<any>(
-            "INSERT INTO users (name,email,image,status,role) VALUES (?,?,?,?,?)",
-            [user.name, user.email, user.image, 1, "user"],
-          );
-          user.id = result.insertId.toString();
+          if (rows.length > 0) {
+            const dbUser = rows[0];
+
+            if (dbUser.role === "admin") {
+              return "/signin?error=ADMIN_NOT_ALLOWED";
+            }
+            if (dbUser.status === 0) {
+              return "/signin?error=ACCOUNT_DISABLED";
+            }
+
+            await pool.execute(
+              "UPDATE users SET name = ?, image = ?, status = 1 WHERE id = ?",
+              [user.name, user.image, dbUser.id],
+            );
+
+            user.id = dbUser.id.toString();
+            return true;
+          } else {
+            const [result] = await pool.execute<any>(
+              "INSERT INTO users (name,email,image,status,role) VALUES (?,?,?,?,?)",
+              [user.name, user.email, user.image, 1, "user"],
+            );
+            user.id = result.insertId.toString();
+            return true;
+          }
+        } catch (error) {
+          console.error("Social login error:", error);
+          return "/signin?error=SYSTEM_ERROR";
         }
 
         return true;
@@ -119,7 +126,7 @@ export const authOptions: NextAuthOptions = {
         return true;
       }
 
-      return false;
+      return true;
     },
 
     async jwt({ token, user }) {
