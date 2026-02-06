@@ -1,10 +1,24 @@
-import { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
-import Credentials from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials";
 import pool from "@/libs/config";
 import { compare } from "bcrypt";
+import { RowDataPacket } from "mysql2";
+
+type DBUser = {
+  id: number;
+  name: string;
+  email: string;
+  password?: string;
+  image?: string;
+  role: "user" | "editor" | "admin";
+  status: number;
+};
+type DBUserRow = DBUser & RowDataPacket;
+
 export const authOptions: NextAuthOptions = {
+  debug: true,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -14,117 +28,117 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.FACEBOOK_CLIENT_ID!,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
     }),
-    Credentials({
+
+    CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
-        const [response]: any = await pool.execute(
-          "SELECT * FROM users WHERE email = ? ",
-          [credentials?.email],
-        );
-        const user = await response[0];
-        if (user && user.password) {
-          // ตรวจสอบ role - ต้องเป็น user หรือ editor เท่านั้น (ไม่ใช่ admin)
-          if (user.role === "admin") {
-            // Admin ไม่สามารถ login ผ่าน NextAuth ได้ ต้องใช้ /signin/admin
-            return null;
-          }
 
-          const passwordCorrect = await compare(
-            credentials?.password || "",
-            user.password,
-          );
-          if (passwordCorrect) {
-            return {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              image: user.image,
-            };
-          } else {
-            return null;
-          }
-        } else {
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials.password) {
           return null;
         }
+
+        const [rows] = await pool.execute<DBUserRow[]>(
+          "SELECT * FROM users WHERE email = ? LIMIT 1",
+          [credentials.email],
+        );
+
+        const user = rows[0];
+        if (!user || !user.password) return null;
+
+        // ❌ admin login ไม่ได้
+        if (user.role === "admin") {
+          return null;
+        }
+        if (user.status === 0) {
+          return null;
+        }
+
+        const isValid = await compare(credentials.password, user.password);
+        if (!isValid) return null;
+
+        return {
+          id: user.id.toString(),
+          name: user.name,
+          email: user.email,
+          image: user.image ?? null,
+        };
       },
     }),
   ],
+
   session: {
     strategy: "jwt",
-    maxAge: 30 * 24 * 60 * 60, // 30 วัน
+    maxAge: 30 * 24 * 60 * 60,
   },
+
   callbacks: {
-    async signIn({ user, account, profile }) {
-      // เพิ่มข้อมูลที่ต้องการลงใน session object
+    async signIn({ user, account }) {
+      // Social login
       if (
         (account?.provider === "google" || account?.provider === "facebook") &&
         user.email
       ) {
-        try {
-          const [rows]: any = await pool.execute(
-            "SELECT id,status,role FROM users WHERE email = ?",
-            [user.email],
-          );
-          if (rows.length > 0) {
-            const data = rows[0];
+        const [rows] = await pool.execute<DBUserRow[]>(
+          "SELECT id, role, status FROM users WHERE email = ? LIMIT 1",
+          [user.email],
+        );
 
-            // ตรวจสอบ role - ต้องเป็น user หรือ editor เท่านั้น (ไม่ใช่ admin)
-            if (data.role === "admin") {
-              // Admin ไม่สามารถ login ผ่าน NextAuth ได้
-              return false;
-            }
+        if (rows.length > 0) {
+          const dbUser = rows[0];
 
-            if (data.status === 0) {
-              return false; // ❌ ปฏิเสธการเข้าสู่ระบบ
-            }
-            await pool.execute(
-              "UPDATE users SET name = ?, email = ?,image = ?,status = 1 WHERE id = ?",
-              [user.name, user.email, user.image, data.id],
-            );
-
-            user.id = data.id;
-          } else {
-            // สร้าง user ใหม่ - role default เป็น 'user'
-            const defaultStatus = 1;
-            const defaultRole = "user";
-            const [result]: any = await pool.execute(
-              "INSERT INTO users (name,email,image,status,role) VALUES (?,?,?,?,?)",
-              [user.name, user.email, user.image, defaultStatus, defaultRole],
-            );
-            user.id = result.insertId;
+          if (dbUser.role === "admin") {
+            return "/signin?error=ADMIN_NOT_ALLOWED";
           }
-          return true;
-        } catch (err) {
-          console.error("Database query error:", err);
-          return false;
+          if (dbUser.status === 0) {
+            return "/signin?error=ACCOUNT_DISABLED";
+          }
+
+          await pool.execute(
+            "UPDATE users SET name = ?, image = ?, status = 1 WHERE id = ?",
+            [user.name, user.image, dbUser.id],
+          );
+
+          user.id = dbUser.id.toString();
+        } else {
+          const [result] = await pool.execute<any>(
+            "INSERT INTO users (name,email,image,status,role) VALUES (?,?,?,?,?)",
+            [user.name, user.email, user.image, 1, "user"],
+          );
+          user.id = result.insertId.toString();
         }
-      }
-      if (account?.provider === "credentials") {
-        // ตรวจสอบ role สำหรับ credentials login (ตรวจสอบแล้วใน authorize)
+
         return true;
       }
+
+      // Credentials login ผ่าน authorize แล้ว
+      if (account?.provider === "credentials") {
+        return true;
+      }
+
       return false;
     },
+
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id.toString();
+      if (user?.id) {
+        token.id = user.id;
       }
       return token;
     },
 
-    // 💡 ต้องเพิ่ม Session Callback เพื่อให้ ID ถูกส่งไปยัง Client
-    async session({ session, token }: any) {
+    async session({ session, token }) {
       if (session.user && token.id) {
-        session.user.id = token.id;
+        session.user.id = token.id as string;
       }
       return session;
     },
   },
+
   pages: {
     signIn: "/signin",
+    error: "/signin",
   },
 };

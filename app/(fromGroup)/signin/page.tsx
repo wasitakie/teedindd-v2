@@ -3,14 +3,21 @@
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
-import { redirect, useRouter } from "next/navigation";
+import { redirect, useSearchParams, useRouter } from "next/navigation";
 import React, { FormEvent, useCallback, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Page() {
+  const errorMessage = useSearchParams().get("error");
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const messageError: Record<string, string> = {
+    ADMIN_NOT_ALLOWED: "แอดมินต้องเข้าสู่ระบบผ่านหน้า Admin",
+    ACCOUNT_DISABLED: "บัญชีนี้ถูกระงับการใช้งาน",
+    AccessDenied: "ไม่สามารถเข้าสู่ระบบได้",
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,6 +74,9 @@ export default function Page() {
   return (
     <>
       <div className="mx-auto container flex items-center justify-center h-screen">
+        {errorMessage && (
+          <p className="text-red-500">{messageError[errorMessage]}</p>
+        )}
         <div className="fieldset bg-base-200 border-base-300 rounded-box w-xs border p-4">
           <div className="">
             {/* <button className="flex items-center justify-center w-full py-3 mb-1.5 space-x-3 text-sm text-center bg-[#00c300] text-white transition-colors duration-200 transform border rounded-2xl hover:bg-green-500 cursor-pointer">

@@ -32,7 +32,7 @@ export default function Search() {
         </h1>
         <form onSubmit={handleSubmit}>
           <div className="flex items-center justify-center my-2.5 ">
-            <div className="flex rounded-full bg-white px-2 w-full max-w-[600px]">
+            <div className="flex rounded-full bg-white px-2 w-full max-w-150">
               <button className="self-center flex p-1 cursor-pointer bg-white">
                 {" "}
                 <MdFilterList className="w-6 h-6 text-gray-600" />
