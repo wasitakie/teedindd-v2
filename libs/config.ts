@@ -5,7 +5,12 @@ const globalForMysql = global as unknown as {
 };
 
 const pool =
-  globalForMysql.pool ?? mysql.createPool(process.env.DATABASE_URL as string);
+  globalForMysql.pool ??
+  mysql.createPool({
+    uri: process.env.DATABASE_URL!,
+    waitForConnections: true,
+    connectionLimit: 5,
+  });
 
 if (process.env.NODE_ENV !== "production") {
   globalForMysql.pool = pool;
