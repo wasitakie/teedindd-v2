@@ -10,7 +10,7 @@ export async function getUsersAll(slug?: string) {
     return rows;
   } catch (error) {
     console.error("Error fetching users:", error);
-    return null;
+    throw error;
   }
 }
 
@@ -73,7 +73,7 @@ export async function getUsersTal(id?: number) {
     return rows;
   } catch (error) {
     console.error("Error fetching users:", error);
-    return null;
+    throw error;
   }
 }
 
