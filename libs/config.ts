@@ -21,5 +21,6 @@ export const pool = globalForMysql.pool ?? createPool();
 if (process.env.NODE_ENV !== "production") {
   globalForMysql.pool = pool;
 }
+console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
 
 export default pool;
